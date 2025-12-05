@@ -1,0 +1,93 @@
+# Kybernesis Agents
+
+Connect to the user's personalized AI agents powered by Kybernesis. Each agent has its own personality, expertise, and access to workspace memories.
+
+## When to Use
+
+Use this skill when:
+- The user wants to talk to one of their Kybernesis agents
+- The user mentions an agent by name (e.g., "ask Samantha about...", "talk to my assistant")
+- The user wants to list their available agents
+- The user asks about their Kybernesis workspace or memories
+
+## Setup Requirements
+
+The user must have `KYBERNESIS_API_KEY` set in their environment:
+```bash
+export KYBERNESIS_API_KEY="kb_your_api_key_here"
+```
+
+Get an API key from: https://kybernesis.ai/settings/api-keys
+
+## How to List Agents
+
+First, discover what agents the user has available:
+
+```bash
+curl -s "https://api.kybernesis.ai/v1/agents" \
+  -H "Authorization: Bearer $KYBERNESIS_API_KEY"
+```
+
+Response format:
+```json
+{
+  "agents": [
+    {
+      "id": "abc123",
+      "name": "Samantha",
+      "description": "A thoughtful AI companion",
+      "status": "active",
+      "modelId": "claude-sonnet-4-20250514",
+      "tags": ["personal", "assistant"]
+    }
+  ],
+  "count": 1
+}
+```
+
+## How to Chat with an Agent
+
+Send a message to a specific agent using their ID:
+
+```bash
+curl -s -X POST "https://api.kybernesis.ai/v1/agents/{AGENT_ID}/chat" \
+  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello, how are you?"}'
+```
+
+Response format:
+```json
+{
+  "response": "The agent's response text here",
+  "conversationId": "conv_xxx",
+  "memoriesUsed": 3,
+  "memoryBlocksUpdated": [],
+  "tokenCount": {"input": 150, "output": 200}
+}
+```
+
+## Maintaining Conversations
+
+To continue a conversation, pass the `conversationId` from the previous response:
+
+```bash
+curl -s -X POST "https://api.kybernesis.ai/v1/agents/{AGENT_ID}/chat" \
+  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Tell me more", "conversationId": "conv_xxx"}'
+```
+
+## Workflow
+
+1. **If user asks to talk to an agent by name**: List agents first, find the matching agent ID, then chat
+2. **If user says "list my agents"**: Call the list endpoint and show the results
+3. **If continuing a conversation**: Use the stored conversationId from previous interactions
+4. **Always show the agent's response** to the user after receiving it
+
+## Important Notes
+
+- Each agent has access to the user's workspace memories and can search them contextually
+- Agents remember their conversations (use conversationId to maintain context)
+- The `memoriesUsed` field shows how many workspace memories influenced the response
+- Agents can update their own memory blocks during conversation

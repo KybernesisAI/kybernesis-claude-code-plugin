@@ -1,0 +1,15 @@
+{
+  "name": "kybernesis",
+  "description": "Official Kybernesis plugins for Claude Code",
+  "owner": {
+    "name": "Kybernesis",
+    "url": "https://kybernesis.ai"
+  },
+  "plugins": [
+    {
+      "name": "kybernesis",
+      "source": "./",
+      "description": "Connect your Kybernesis AI agents to Claude Code. Chat with personalized AI agents that have access to your workspace memories."
+    }
+  ]
+}
