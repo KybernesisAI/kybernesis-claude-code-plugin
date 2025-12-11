@@ -1,7 +1,6 @@
 ---
 name: kybernesis-agents
 description: Chat with your personalized Kybernesis AI agents. Use when user wants to list agents, talk to an agent by name, or interact with their Kybernesis workspace.
-allowed-tools: Bash
 ---
 
 # Kybernesis Agents
@@ -18,18 +17,21 @@ Use this skill when:
 
 ## Setup Requirements
 
-The user must have `KYBERNESIS_API_KEY` set in their environment:
-```bash
-export KYBERNESIS_API_KEY="kb_your_api_key_here"
-```
+The user needs to authenticate first. Run `/kybernesis-login` to open the browser and authenticate.
 
-Get an API key from: https://kybernesis.ai/settings/api-keys
+After login, the API key is stored in `~/.kybernesis/api-key`. The key can also be set via environment variable `KYBERNESIS_API_KEY`.
+
+To read the API key from the file:
+```bash
+KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null || echo $KYBERNESIS_API_KEY)
+```
 
 ## How to List Agents
 
 First, discover what agents the user has available:
 
 ```bash
+KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null || echo $KYBERNESIS_API_KEY)
 curl -s "https://api.kybernesis.ai/v1/agents" \
   -H "Authorization: Bearer $KYBERNESIS_API_KEY"
 ```
@@ -56,6 +58,7 @@ Response format:
 Send a message to a specific agent using their ID:
 
 ```bash
+KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null || echo $KYBERNESIS_API_KEY)
 curl -s -X POST "https://api.kybernesis.ai/v1/agents/{AGENT_ID}/chat" \
   -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
   -H "Content-Type: application/json" \
@@ -78,6 +81,7 @@ Response format:
 To continue a conversation, pass the `conversationId` from the previous response:
 
 ```bash
+KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null || echo $KYBERNESIS_API_KEY)
 curl -s -X POST "https://api.kybernesis.ai/v1/agents/{AGENT_ID}/chat" \
   -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
   -H "Content-Type: application/json" \
@@ -86,29 +90,10 @@ curl -s -X POST "https://api.kybernesis.ai/v1/agents/{AGENT_ID}/chat" \
 
 ## Workflow
 
-1. **If user asks to talk to an agent by name**:
-   - FIRST: Call the list endpoint to get all agents with their IDs
-   - SECOND: Find the agent with the matching name (case-insensitive)
-   - THIRD: Use the agent's `id` field (NOT the name) to call the chat endpoint
-   - Example: If user says "talk to Samantha" and Samantha has id "p1788...", use that ID in the chat URL
-2. **If user says "list my agents"**: Call the list endpoint and show the results in a table
+1. **If user asks to talk to an agent by name**: List agents first, find the matching agent ID, then chat
+2. **If user says "list my agents"**: Call the list endpoint and show the results
 3. **If continuing a conversation**: Use the stored conversationId from previous interactions
 4. **Always show the agent's response** to the user after receiving it
-
-**CRITICAL**: The chat endpoint requires the agent's `id` field, NOT the agent's name. Always get the ID from the list response first.
-
-## Saving to Workspace Memory
-
-Agents with write permissions can save information to the workspace memory. Users can trigger this with natural language:
-
-- "Save this to memory"
-- "Add this to my workspace"
-- "Remember this for later"
-- "Store this information"
-
-The agent will automatically create a titled, tagged memory that becomes searchable in the workspace. The saved memory will appear in the response's `memoryBlocksUpdated` field.
-
-**Example**: If the user says "Save our discussion about the Q4 marketing plan to memory", the agent will use its `archival_insert` tool to save a structured memory with an appropriate title and tags.
 
 ## Important Notes
 
@@ -116,4 +101,3 @@ The agent will automatically create a titled, tagged memory that becomes searcha
 - Agents remember their conversations (use conversationId to maintain context)
 - The `memoriesUsed` field shows how many workspace memories influenced the response
 - Agents can update their own memory blocks during conversation
-- Agents with write permissions can save new memories to the workspace via natural language
