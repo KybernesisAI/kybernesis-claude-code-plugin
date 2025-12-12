@@ -1,3 +1,9 @@
+---
+name: {{AGENT_NAME_SLUG}}
+description: Chat with {{AGENT_NAME}}, your Kybernesis AI agent. {{AGENT_DESCRIPTION}}
+allowed-tools: Bash
+---
+
 # {{AGENT_NAME}}
 
 {{AGENT_DESCRIPTION}}
@@ -10,7 +16,7 @@ Use this skill when the user wants to interact with the {{AGENT_NAME}} agent. Th
 - Search through workspace knowledge to find relevant information
 {{/if}}
 {{#if CAN_WRITE_MEMORIES}}
-- Save important information to the workspace memory
+- Save important information to the workspace memory when asked (e.g., "save this to memory", "remember this", "add this to my workspace")
 {{/if}}
 - Maintain conversation context across messages
 - Update its own memory based on user instructions
@@ -46,6 +52,21 @@ The API returns:
   "tokenCount": {"input": 150, "output": 200}
 }
 ```
+
+## Saving to Memory
+
+{{#if CAN_WRITE_MEMORIES}}
+This agent can save information to the workspace when you say things like:
+- "Save this to memory"
+- "Add this to my workspace"
+- "Remember this for later"
+- "Store this information"
+
+The agent will create a titled, tagged memory that becomes searchable in the workspace.
+{{/if}}
+{{#unless CAN_WRITE_MEMORIES}}
+This agent has read-only access to workspace memories. To save information, enable write permissions in the agent settings.
+{{/unless}}
 
 ## Important Notes
 
