@@ -25,33 +25,48 @@ This agent specializes in: {{AGENT_TAGS}}
 
 ## How to Invoke
 
-Use the MCP tool `mcp__kybernesis__kybernesis_agent_chat` to chat with this agent:
+To chat with this agent, first read the API key, then make the API call:
 
-- **agentId**: `{{AGENT_ID}}`
-- **message**: The user's message to send to the agent
+```bash
+# Read API key
+KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null)
 
-Example tool call:
+# Send message to agent
+curl -s -X POST "https://api.kybernesis.ai/v1/agents/{{AGENT_ID}}/chat" \
+  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "USER_MESSAGE_HERE"}'
 ```
-mcp__kybernesis__kybernesis_agent_chat
-  agentId: {{AGENT_ID}}
-  message: <user's question here>
-```
+
+Replace USER_MESSAGE_HERE with the actual user message. The agent ID is: {{AGENT_ID}}
 
 ## Response Format
 
-The tool returns the agent's response directly. Display this response to the user.
-
-To continue a conversation, include the `conversationId` from the previous response:
-
+The API returns JSON with the agent's response:
+```json
+{
+  "response": "The agent's response text",
+  "conversationId": "conv_xxx",
+  "memoriesUsed": 3
+}
 ```
-mcp__kybernesis__kybernesis_agent_chat
-  agentId: {{AGENT_ID}}
-  message: <follow-up message>
-  conversationId: <id from previous response>
+
+Display the "response" field to the user. Save the "conversationId" to continue the conversation.
+
+## Continuing Conversations
+
+To continue a conversation, include the conversationId from the previous response:
+
+```bash
+curl -s -X POST "https://api.kybernesis.ai/v1/agents/{{AGENT_ID}}/chat" \
+  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "FOLLOW_UP_MESSAGE", "conversationId": "conv_xxx"}'
 ```
 
 ## Important
 
-- Use the MCP tool directly - no authentication needed (handled by MCP server)
+- Always read the API key from ~/.kybernesis/api-key before making requests
 - Display the agent's response to the user
 - The agent has access to workspace memories and will use them contextually
+- API calls to api.kybernesis.ai are auto-approved by the plugin's hook
