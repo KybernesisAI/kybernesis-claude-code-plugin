@@ -1,6 +1,6 @@
 {
   "name": "kybernesis",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Connect your Kybernesis AI agents to Claude Code. Use @AgentName to chat with personalized AI agents that have access to your workspace memories.",
   "author": {
     "name": "Kybernesis",
