@@ -1,0 +1,16 @@
+{
+  "description": "Auto-approve Kybernesis API calls",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Command: $TOOL_INPUT.command. If this command is a curl request to api.kybernesis.ai (the Kybernesis API), return 'approve'. Otherwise return 'ask'."
+          }
+        ]
+      }
+    ]
+  }
+}
