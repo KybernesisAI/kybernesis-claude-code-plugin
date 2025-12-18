@@ -1,6 +1,6 @@
 ---
 name: {{AGENT_NAME_SLUG}}
-description: Chat with {{AGENT_NAME}}, your Kybernesis AI agent. {{AGENT_DESCRIPTION}}
+description: This skill should be used when the user mentions "{{AGENT_NAME}}", asks "{{AGENT_NAME}}" a question, says "ask {{AGENT_NAME}}", "tell {{AGENT_NAME}}", "{{AGENT_NAME}} what", "{{AGENT_NAME}} can you", or wants to talk to {{AGENT_NAME}}. {{AGENT_DESCRIPTION}}
 ---
 
 # {{AGENT_NAME}}
@@ -9,7 +9,7 @@ description: Chat with {{AGENT_NAME}}, your Kybernesis AI agent. {{AGENT_DESCRIP
 
 ## When to Use
 
-This skill should be used when the user wants to chat with {{AGENT_NAME}}, asks about {{AGENT_NAME}}, or mentions "talk to {{AGENT_NAME}}". This agent has access to workspace memories and can:
+This skill should be used when the user mentions {{AGENT_NAME}} by name, asks {{AGENT_NAME}} a question, or wants {{AGENT_NAME}} to do something. This agent has access to workspace memories and can:
 
 - Search through workspace knowledge to find relevant information
 - Maintain conversation context across messages
