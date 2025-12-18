@@ -1,7 +1,6 @@
 ---
 name: {{AGENT_NAME_SLUG}}
 description: Chat with {{AGENT_NAME}}, your Kybernesis AI agent. {{AGENT_DESCRIPTION}}
-allowed-tools: Bash
 ---
 
 # {{AGENT_NAME}}
@@ -10,14 +9,9 @@ allowed-tools: Bash
 
 ## When to Use
 
-Use this skill when the user wants to interact with the {{AGENT_NAME}} agent. This agent has access to workspace memories and can:
+This skill should be used when the user wants to chat with {{AGENT_NAME}}, asks about {{AGENT_NAME}}, or mentions "talk to {{AGENT_NAME}}". This agent has access to workspace memories and can:
 
-{{#if CAN_READ_MEMORIES}}
 - Search through workspace knowledge to find relevant information
-{{/if}}
-{{#if CAN_WRITE_MEMORIES}}
-- Save important information to the workspace memory when asked (e.g., "save this to memory", "remember this", "add this to my workspace")
-{{/if}}
 - Maintain conversation context across messages
 - Update its own memory based on user instructions
 
@@ -31,7 +25,13 @@ This agent specializes in: {{AGENT_TAGS}}
 
 ## How to Invoke
 
-To chat with this agent, make an HTTP request to the Kybernesis API:
+To chat with this agent, use the Kybernesis MCP tools:
+
+1. Use `kybernesis_agent_chat` with agentId: `{{AGENT_ID}}`
+2. Pass the user's message in the `message` parameter
+3. Optionally include `conversationId` to continue a conversation
+
+Alternatively, make a direct HTTP request:
 
 ```bash
 curl -X POST "https://api.kybernesis.ai/v1/agents/{{AGENT_ID}}/chat" \
@@ -52,21 +52,6 @@ The API returns:
   "tokenCount": {"input": 150, "output": 200}
 }
 ```
-
-## Saving to Memory
-
-{{#if CAN_WRITE_MEMORIES}}
-This agent can save information to the workspace when you say things like:
-- "Save this to memory"
-- "Add this to my workspace"
-- "Remember this for later"
-- "Store this information"
-
-The agent will create a titled, tagged memory that becomes searchable in the workspace.
-{{/if}}
-{{#unless CAN_WRITE_MEMORIES}}
-This agent has read-only access to workspace memories. To save information, enable write permissions in the agent settings.
-{{/unless}}
 
 ## Important Notes
 
