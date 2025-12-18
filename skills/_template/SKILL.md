@@ -1,6 +1,7 @@
 ---
 name: {{AGENT_NAME_SLUG}}
 description: This skill should be used when the user mentions "{{AGENT_NAME}}", asks "{{AGENT_NAME}}" a question, says "ask {{AGENT_NAME}}", "tell {{AGENT_NAME}}", "{{AGENT_NAME}} what", "{{AGENT_NAME}} can you", or wants to talk to {{AGENT_NAME}}. {{AGENT_DESCRIPTION}}
+allowed-tools: Bash
 ---
 
 # {{AGENT_NAME}}
