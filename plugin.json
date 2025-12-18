@@ -1,8 +1,11 @@
 {
   "name": "kybernesis",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Connect your Kybernesis AI agents to Claude Code. Use @AgentName to chat with personalized AI agents that have access to your workspace memories.",
-  "author": "Kybernesis",
+  "author": {
+    "name": "Kybernesis",
+    "url": "https://kybernesis.ai"
+  },
   "homepage": "https://kybernesis.ai",
   "repository": "https://github.com/KybernesisAI/kybernesis-claude-code-plugin",
   "license": "MIT"
