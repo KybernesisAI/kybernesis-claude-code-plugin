@@ -65,104 +65,88 @@ Present this choice to the user and wait for their selection.
 
 Before creating new skills, remove any existing Kybernesis agent skills in the chosen scope.
 
-For **project scope**, use Glob to find and remove:
+For **project scope**, find and remove directories matching:
 ```
 .claude/skills/kybernesis-agent-*/
 ```
 
-For **user scope**, use Glob to find and remove:
+For **user scope**, find and remove directories matching:
 ```
 ~/.claude/skills/kybernesis-agent-*/
 ```
 
 Use Bash `rm -rf` to remove each matching directory.
 
-## Step 5: Create Skills for Each Agent
+## Step 5: Generate Skills Using the Utility Script
 
-For each agent in the response, create a skill directory and SKILL.md file.
+For each agent in the response, use the `generate-skill.sh` script to create the skill.
 
-### Directory Structure
+The script is located at: `${CLAUDE_PLUGIN_ROOT}/scripts/generate-skill.sh`
 
-Create: `{scope-path}/kybernesis-agent-{slug}/SKILL.md`
+### Script Usage
 
-Where `{slug}` is the agent name converted to lowercase with spaces replaced by hyphens.
-
-### SKILL.md Template
-
-For each agent, create a SKILL.md with this structure:
-
-```markdown
----
-name: kybernesis-agent-{slug}
-description: Chat with {agent.name}, your Kybernesis AI agent. {agent.description}
-allowed-tools: Bash
----
-
-# {agent.name}
-
-{agent.description}
-
-## Agent ID
-
-**ID:** `{agent.id}`
-
-## When to Use
-
-Use this skill when the user wants to interact with the {agent.name} agent. This agent has access to workspace memories and can:
-
-- Search through workspace knowledge to find relevant information
-- Save important information to the workspace memory when asked
-- Maintain conversation context across messages
-
-## Topics & Expertise
-
-This agent specializes in: {agent.tags joined by ", "}
-
-## How to Chat
-
-To send a message to this agent, make an HTTP request:
-
-\`\`\`bash
-KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null)
-curl -s -X POST "https://api.kybernesis.ai/v1/agents/{agent.id}/chat" \
-  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"message": "USER_MESSAGE_HERE"}'
-\`\`\`
-
-Replace `USER_MESSAGE_HERE` with the actual message to send.
-
-## Response Format
-
-The API returns:
-\`\`\`json
-{
-  "response": "The agent's response text",
-  "conversationId": "conv_xxx",
-  "memoriesUsed": 3,
-  "memoryBlocksUpdated": [],
-  "tokenCount": {"input": 150, "output": 200}
-}
-\`\`\`
-
-## Continuing Conversations
-
-To maintain conversation context, pass the `conversationId` from the previous response:
-
-\`\`\`bash
-KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null)
-curl -s -X POST "https://api.kybernesis.ai/v1/agents/{agent.id}/chat" \
-  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Follow-up message", "conversationId": "conv_xxx"}'
-\`\`\`
-
-## Important Notes
-
-- Always display the agent's response to the user
-- The `memoriesUsed` field shows how many workspace memories influenced the response
-- Conversation context is maintained via `conversationId`
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/generate-skill.sh" \
+  "<target_path>" \
+  "<agent_id>" \
+  "<agent_name>" \
+  "<agent_description>" \
+  "<agent_tags>" \
+  "<agent_persona>" \
+  "<can_write_memories>"
 ```
+
+### Arguments
+
+| Argument | Description | Example |
+|----------|-------------|---------|
+| target_path | Full path to skill directory | `~/.claude/skills/kybernesis-agent-samantha` |
+| agent_id | Unique agent identifier | `abc123` |
+| agent_name | Display name | `Samantha` |
+| agent_description | Agent description | `A helpful AI assistant` |
+| agent_tags | Comma-separated tags | `personal,assistant` |
+| agent_persona | Personality (use description if not available) | `A thoughtful companion` |
+| can_write_memories | `true` or `false` | `true` |
+
+### Example
+
+For an agent with:
+- id: `abc123`
+- name: `Samantha`
+- description: `A thoughtful AI companion`
+- tags: `["personal", "assistant"]`
+
+If user selected **user scope**:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/generate-skill.sh" \
+  "$HOME/.claude/skills/kybernesis-agent-samantha" \
+  "abc123" \
+  "Samantha" \
+  "A thoughtful AI companion" \
+  "personal, assistant" \
+  "A thoughtful AI companion" \
+  "true"
+```
+
+### Processing Each Agent
+
+For each agent in the API response:
+
+1. Determine the target path:
+   - Project scope: `.claude/skills/kybernesis-agent-{slug}`
+   - User scope: `~/.claude/skills/kybernesis-agent-{slug}`
+   - Where `{slug}` is the agent name in lowercase with spaces replaced by hyphens
+
+2. Extract agent fields from the JSON:
+   - `id` → agent_id
+   - `name` → agent_name
+   - `description` → agent_description
+   - `tags` array → join with ", " for agent_tags
+   - `persona` (or use description if not present) → agent_persona
+   - `canWriteMemories` (default to "true" if not present) → can_write_memories
+
+3. Run the script with the extracted values
 
 ## Step 6: Report Results
 
@@ -170,6 +154,16 @@ After creating all skills, tell the user:
 
 1. How many agents were synced
 2. The names of the synced agents
-3. Where the skills were created (project or user scope)
+3. Where the skills were created (project or user scope path)
 4. That they need to restart Claude Code for the new skills to be available
 5. How to use the skills (mention agent by name or ask to talk to them)
+
+Example output:
+```
+Synced 2 agents to ~/.claude/skills/:
+- Samantha (kybernesis-agent-samantha)
+- Alex (kybernesis-agent-alex)
+
+Restart Claude Code for the new skills to take effect.
+To chat with an agent, just mention them by name (e.g., "Ask Samantha about...")
+```
