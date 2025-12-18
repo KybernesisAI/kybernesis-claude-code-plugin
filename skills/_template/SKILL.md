@@ -25,36 +25,47 @@ This agent specializes in: {{AGENT_TAGS}}
 
 ## How to Invoke
 
-To chat with this agent, use the Kybernesis MCP tools:
-
-1. Use `kybernesis_agent_chat` with agentId: `{{AGENT_ID}}`
-2. Pass the user's message in the `message` parameter
-3. Optionally include `conversationId` to continue a conversation
-
-Alternatively, make a direct HTTP request:
+To chat with this agent, first read the API key, then make the API call:
 
 ```bash
-curl -X POST "https://api.kybernesis.ai/v1/agents/{{AGENT_ID}}/chat" \
+# Read API key
+KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null)
+
+# Send message to agent
+curl -s -X POST "https://api.kybernesis.ai/v1/agents/{{AGENT_ID}}/chat" \
   -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"message": "USER_MESSAGE_HERE"}'
 ```
 
+Replace USER_MESSAGE_HERE with the actual user message. The agent ID is: {{AGENT_ID}}
+
 ## Response Format
 
-The API returns:
+The API returns JSON with the agent's response:
 ```json
 {
   "response": "The agent's response text",
   "conversationId": "conv_xxx",
-  "memoriesUsed": 3,
-  "memoryBlocksUpdated": ["persona"],
-  "tokenCount": {"input": 150, "output": 200}
+  "memoriesUsed": 3
 }
 ```
 
-## Important Notes
+Display the "response" field to the user. Save the "conversationId" to continue the conversation.
 
-- The `conversationId` can be passed in subsequent requests to maintain conversation context
-- The agent reads from `KYBERNESIS_API_KEY` environment variable for authentication
-- Memories are retrieved from the workspace automatically based on the query
+## Continuing Conversations
+
+To continue a conversation, include the conversationId from the previous response:
+
+```bash
+curl -s -X POST "https://api.kybernesis.ai/v1/agents/{{AGENT_ID}}/chat" \
+  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "FOLLOW_UP_MESSAGE", "conversationId": "conv_xxx"}'
+```
+
+## Important
+
+- Always read the API key from ~/.kybernesis/api-key before making requests
+- Display the agent's response to the user
+- The agent has access to workspace memories and will use them contextually
