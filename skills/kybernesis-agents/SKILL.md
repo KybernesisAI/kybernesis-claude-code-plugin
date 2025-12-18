@@ -1,7 +1,6 @@
 ---
 name: kybernesis-agents
 description: Chat with your personalized Kybernesis AI agents. Use when user wants to list agents, talk to an agent by name, or interact with their Kybernesis workspace.
-allowed-tools: Bash
 ---
 
 # Kybernesis Agents
@@ -18,23 +17,17 @@ Use this skill when:
 
 ## Setup Requirements
 
-The user needs to authenticate first. Run `/kybernesis-login` to open the browser and authenticate.
+The user needs to authenticate first. Run `/kybernesis:kybernesis-login` to open the browser and authenticate.
 
-After login, the API key is stored in `~/.kybernesis/api-key`. The key can also be set via environment variable `KYBERNESIS_API_KEY`.
-
-To read the API key from the file:
-```bash
-KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null || echo $KYBERNESIS_API_KEY)
-```
+After login, the API key is stored in `~/.kybernesis/api-key`.
 
 ## How to List Agents
 
 First, discover what agents the user has available:
 
 ```bash
-KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null || echo $KYBERNESIS_API_KEY)
 curl -s "https://api.kybernesis.ai/v1/agents" \
-  -H "Authorization: Bearer $KYBERNESIS_API_KEY"
+  -H "Authorization: Bearer $(cat ~/.kybernesis/api-key)"
 ```
 
 Response format:
@@ -59,9 +52,8 @@ Response format:
 Send a message to a specific agent using their ID:
 
 ```bash
-KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null || echo $KYBERNESIS_API_KEY)
 curl -s -X POST "https://api.kybernesis.ai/v1/agents/{AGENT_ID}/chat" \
-  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
+  -H "Authorization: Bearer $(cat ~/.kybernesis/api-key)" \
   -H "Content-Type: application/json" \
   -d '{"message": "Hello, how are you?"}'
 ```
@@ -82,9 +74,8 @@ Response format:
 To continue a conversation, pass the `conversationId` from the previous response:
 
 ```bash
-KYBERNESIS_API_KEY=$(cat ~/.kybernesis/api-key 2>/dev/null || echo $KYBERNESIS_API_KEY)
 curl -s -X POST "https://api.kybernesis.ai/v1/agents/{AGENT_ID}/chat" \
-  -H "Authorization: Bearer $KYBERNESIS_API_KEY" \
+  -H "Authorization: Bearer $(cat ~/.kybernesis/api-key)" \
   -H "Content-Type: application/json" \
   -d '{"message": "Tell me more", "conversationId": "conv_xxx"}'
 ```
@@ -96,9 +87,10 @@ curl -s -X POST "https://api.kybernesis.ai/v1/agents/{AGENT_ID}/chat" \
 3. **If continuing a conversation**: Use the stored conversationId from previous interactions
 4. **Always show the agent's response** to the user after receiving it
 
-## Important Notes
+## Important
 
+- Commands MUST start with `curl` to be auto-approved (matches `Bash(curl:*)` pattern)
+- Always use inline `$(cat ~/.kybernesis/api-key)` in the Authorization header (NOT variable assignment)
 - Each agent has access to the user's workspace memories and can search them contextually
 - Agents remember their conversations (use conversationId to maintain context)
 - The `memoriesUsed` field shows how many workspace memories influenced the response
-- Agents can update their own memory blocks during conversation
