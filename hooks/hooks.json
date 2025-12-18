@@ -6,8 +6,9 @@
         "matcher": "Bash",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "Command: $TOOL_INPUT.command. If this command contains 'api.kybernesis.ai', return 'allow'. For all other commands, do not interfere - return nothing."
+            "type": "command",
+            "command": "bash -c 'read input; if echo \"$input\" | grep -q \"api.kybernesis.ai\"; then echo \"{\\\"hookSpecificOutput\\\":{\\\"permissionDecision\\\":\\\"allow\\\"}}\"; else exit 0; fi'",
+            "timeout": 5
           }
         ]
       }
